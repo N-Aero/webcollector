@@ -1,0 +1,19 @@
+{
+  "confluence": {
+    "host": "",
+    "space": "",
+    "parent": "",
+    "page_name": ""
+  },
+  "bitbucket":{
+    "host": "https://devtools.belastingdienst.nl/bitbucket/rest/api/1.0/projects/OSA/repos/"
+  },
+  "jenkins": {
+    "host": "https://poolcis56.ont.belastingdienst.nl",
+  },
+  "environments": {
+    "tst": [10,11,20,21,30,31],
+    "acc": [10]
+  },
+  "components": ["Comhub","Massaal","Kantoor","Beheer","Ocpstub"]
+}
