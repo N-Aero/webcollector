@@ -81,33 +81,36 @@ class CollectData:
             date = 'date not found'
         return date
 
-    def get_releaseinfo(self, environment, street, repository, tag_generic_part, jenkins_deploy_job,
-                        version_txt_url_template=None, version_plain_url_template=None):
-        if version_txt_url_template:
+    def get_releaseinfo(self, environment, street, component_config):
+        version_info = component_config["version"]
+        if "version-info" in version_info:
             version, link_versioninfo = self.get_version_from_version_text(
-                version_txt_url_template.format(street=street, environment=environment))
+                version_info["version-info"].format(street, environment))
         else:
-            raise NotImplementedError("other than version txt url not implemented yet")
+            raise NotImplementedError("only version text currently implemented")
 
         issue = self.extract_issue_key(version)
-        deploytime = self.get_bitbucket_tag_info(repository, tag_generic_part, version)
+        deploytime = self.get_bitbucket_tag_info(component_config["repo_key"], component_config["scm_version_prefix"],
+                                                 version)
+        jenkins_link = self.jenkins_host+component_config["jenkins_job"]
 
-        link_deploy = self.jenkins_host + "/jenkins/blue/organisations/jenkins/{}/activity".format(
-            jenkins_deploy_job)
+        return link_versioninfo, issue, deploytime, jenkins_link
 
-        return link_versioninfo, issue, deploytime, link_deploy
-
-    def get_version_info_per_street(self, content):
+    def get_version_info_per_street(self, config):
         data = {}
+        content = config['environments']
         for environment in content:
             for street in content[environment]:
-                data[str(environment).capitalize() + ' ' + str(street)] = {
-                    "Comhub": list(
-                        self.get_releaseinfo(environment, street, 'osa_communicatihub', 'osa-communicatiehub-',
-                                             'osa-10-communicatiehub-deploy',
-                                             version_txt_url_template="osa-communicatiehub-ws.str{street}.{environment}.belastingdienst.nl/osa-communicatiehub-ws/versie-info.txt"))
+                server_title = str(environment).capitalize() + ' ' + str(street)
+                environment_key = str(environment) + '_' + str(street)
+                data[server_title] = {}
 
-                }
+                # iterate over each component
+                for component in config['components']:
+                    component_name = component['name']
+                    if "unavailable" not in component or environment_key not in component["unavailable"]:
+                        data[server_title][component_name] = list(self.get_releaseinfo(environment, street, component))
+        return data
 
     def get_version_from_version_text(self, url):
         version_txt = self.get_content(url)

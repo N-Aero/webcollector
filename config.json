@@ -1,19 +1,39 @@
 {
   "confluence": {
-    "host": "",
-    "space": "",
-    "parent": "",
-    "page_name": ""
+    "host": "confluence.com",
+    "space": "YDP",
+    "parent": "Omgevingen",
+    "page_name": "Versie Overzicht"
   },
   "bitbucket":{
-    "host": "https://devtools.belastingdienst.nl/bitbucket/rest/api/1.0/projects/OSA/repos/"
+    "host": "bitbucket.com"
   },
   "jenkins": {
-    "host": "https://poolcis56.ont.belastingdienst.nl",
+    "host": "jenkins.io"
   },
   "environments": {
     "tst": [10,11,20,21,30,31],
     "acc": [10]
   },
-  "components": ["Comhub","Massaal","Kantoor","Beheer","Ocpstub"]
+  "components": [
+    {
+      "name": "FrontEnd",
+      "repo_key": "my_frontend",
+      "scm_version_prefix": "my-frontend-",
+      "jenkins_job": "/jenkins/blue/organisations/jenkins/00-my-frontend-deploy/activity",
+      "version": {
+        "version_info": "my-frontend.{}.{}.mypage.nl/my-frontend/versie-info.txt"
+      }
+    },
+    {
+      "name": "interface_stub",
+      "repo_key": "interface_stub",
+      "scm_version_prefix": "interface-stub-",
+      "jenkins_job": "/jenkins/blue/organisations/jenkins/10-interface-stub-deploy/activity",
+      "version": {
+        "version_info": "interface-stub.{}.{}.mypage.nl/interface-stub/versie-info.txt"
+      },
+      "unavailable": ["tst_10", "tst_11", "acc_10"]
+    }
+  ]
 }

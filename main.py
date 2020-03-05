@@ -1,7 +1,9 @@
 import argparse
 import json
 from datetime import datetime
-from collect import *
+from collect import CollectData
+from publish import Publisher
+
 
 def dump_html(h):
     html = """
@@ -85,9 +87,13 @@ if __name__ == '__main__':
                     cmdline_args.password)
 
     results = c.get_version_info_per_street(content)
-    htmlresult = generate_html(results,content['components'])
+    htmlresult = generate_html(results, content['components'])
 
     if cmdline_args.verbose:
         dump_html(htmlresult)
     else:
-        pass
+        p = Publisher(cmdline_args.user, cmdline_args.password, content['confluence']['space'],
+                      content['confluence']['host'])
+        parent = content['confluence']['parent']
+        pagename = content['confluence']['pagename']
+        p.publish(parent, pagename, htmlresult)
