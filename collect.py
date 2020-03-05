@@ -92,7 +92,7 @@ class CollectData:
         issue = self.extract_issue_key(version)
         deploytime = self.get_bitbucket_tag_info(component_config["repo_key"], component_config["scm_version_prefix"],
                                                  version)
-        jenkins_link = self.jenkins_host+component_config["jenkins_job"]
+        jenkins_link = self.jenkins_host + component_config["jenkins_job"]
 
         return link_versioninfo, issue, deploytime, jenkins_link
 

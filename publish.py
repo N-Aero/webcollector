@@ -1,8 +1,8 @@
 import requests
 import urllib3
-# Disable proxy settings
 from requests.auth import HTTPBasicAuth
 
+# Disable proxy settings
 session = requests.Session()
 session.trust_env = False
 
