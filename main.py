@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
     c = CollectData(content['jenkins']['host'],
                     content['bitbucket']['host'],
+                    content['jira']['project-key'],
                     cmdline_args.user,
                     cmdline_args.password)
 

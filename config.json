@@ -11,6 +11,9 @@
   "jenkins": {
     "host": "jenkins.io"
   },
+  "jira": {
+    "project-key": "YDP"
+  },
   "environments": {
     "tst": [10,11,20,21,30,31],
     "acc": [10]

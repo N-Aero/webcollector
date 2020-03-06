@@ -15,9 +15,10 @@ urllib3.disable_warnings()
 
 
 class CollectData:
-    def __init__(self, jenkins_host, bitbucket_host, username, password):
+    def __init__(self, jenkins_host, bitbucket_host, project_key, username, password):
         self.jenkins_host = jenkins_host
         self.bitbucket_host = bitbucket_host
+        self.jira_project_key = project_key
         self.username = username
         self.password = password
 
@@ -47,13 +48,13 @@ class CollectData:
         </ac:structured-macro></p>'''.format(key=jira_key)
 
     def extract_issue_key(self, text_containing_issue_key):
-        url = ''
+        jira_macro = ''
         if text_containing_issue_key is not None:
-            re_match = re.search(r'(OSA)-?(\d{4})', text_containing_issue_key)
+            re_match = re.search(r'(' + self.jira_project_key + r')-?(\d{4})', text_containing_issue_key)
             if re_match:
                 match = re_match.group(1) + '-' + re_match.group(2)
                 url = self.create_jira_key_macro(match)
-        return url
+        return jira_macro
 
     def get_bitbucket_tag_info(self, repository, tag_generic_part, version):
         if version == 'No Version' or version is None:
