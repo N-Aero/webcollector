@@ -42,10 +42,10 @@ if __name__ == '__main__':
 
     c = CollectData(config)
 
-    results = c.get_version_info_per_street(config)
+    results = c.get_version_info_per_street()
 
     p = Publisher(config)
-    htmlresult = p.generate_html()
+    htmlresult = p.generate_html(results)
 
     if cmdline_args.verbose:
         dump_html(htmlresult)

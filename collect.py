@@ -54,7 +54,7 @@ class CollectData:
             re_match = re.search(r'(' + self.jira_project_key + r')-?(\d{4})', text_containing_issue_key)
             if re_match:
                 match = re_match.group(1) + '-' + re_match.group(2)
-                url = self.create_jira_key_macro(match)
+                jira_macro = self.create_jira_key_macro(match)
         return jira_macro
 
     def get_bitbucket_tag_info(self, repository, tag_generic_part, version):
@@ -85,9 +85,9 @@ class CollectData:
 
     def get_release_info(self, environment, street, component_config):
         version_info = component_config["version"]
-        if "version-info" in version_info:
+        if "version_info" in version_info:
             version, link_version_info = self.get_version_from_version_text(
-                version_info["version-info"].format(street, environment))
+                version_info["version_info"].format(street, environment))
         else:
             raise NotImplementedError("only version text currently implemented")
 

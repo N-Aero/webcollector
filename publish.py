@@ -28,6 +28,9 @@ class Publisher:
                                headers={'Cache-Control': 'no-cache',
                                         'Pragma': 'no-cache',
                                         'Expires': 'Thu, 01 Jan 1970 00:00:00 GMT'})
+        if response.status_code != 200:
+            raise ConnectionError(response.text)
+
         return response
 
     def post_content(self, url, data):
@@ -56,15 +59,14 @@ class Publisher:
     def publish(self, content):
         title = self.config.content['confluence']['page_name']
 
-        parent_title = self.config.content['jira']['parent_page'].replace(' ', '%20')
+        parent_title = self.config.content['confluence']['parent'].replace(' ', '%20')
         url = f"{self.confluence_host}/confluence/rest/api/content?spaceKey={self.space}&title={parent_title}"
 
         response = self.get_content(url)
         result = response.json()['results'][0]
 
         parent_id = result['id']
-        url_children = "{confluence_host}/confluence/rest/api/{id}/child/page".format(
-            confluence_host=self.confluence_host, id=parent_id)
+        url_children = f"{self.confluence_host}/confluence/rest/api/{parent_id}/child/page"
 
         response = self.get_content(url_children)
         results = response.json()['results']
@@ -125,10 +127,10 @@ class Publisher:
         right_column = ''
         for environment in results:
             bgcolor = ''
-            if any('No Version' in version for version in [results[environment]['Massaal'][0],
-                                                           results[environment]['Comhub'][0],
-                                                           results[environment]['Kantoor'][0]
-                                                           ]):
+            if any('No Version' in version for version in [results[environment]['Massaal'][0]]):
+                                                           # results[environment]['Comhub'][0],
+                                                           # results[environment]['Kantoor'][0]
+                                                           # ]):
                 bgcolor = 'background-color:red;'
 
             number_of_columns = 3
@@ -144,7 +146,7 @@ class Publisher:
 
             # Display components per environment
             envdata = results[environment]
-            for component in self.config.content['components']:
+            for component in envdata:
                 data = envdata[component]
                 table_content += f'''<tr><td bgcolor="#D3D3D3"><a href="{data[3]}" target="_blank"><img src="{self.config.content['jenkins']['host']}/jenkins/static/665c6ecd/images/16x16/clock.png"/></a>&nbsp{component}</td><td>{data[0]}<br/><font style="rgb(133,134,154)"><sub><i>{data[2]}</i></sub></font></td><td>{data[1]}</td></tr>'''
             table_content += "</table>"

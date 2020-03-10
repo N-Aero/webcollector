@@ -1,15 +1,15 @@
 {
   "confluence": {
-    "host": "confluence.com",
+    "host": "http://confluence.com",
     "space": "YDP",
     "parent": "Omgevingen",
     "page_name": "Versie Overzicht"
   },
   "bitbucket":{
-    "host": "bitbucket.com"
+    "host": "http://bitbucket.com"
   },
   "jenkins": {
-    "host": "jenkins.io"
+    "host": "http://jenkins.io"
   },
   "jira": {
     "project-key": "YDP"
@@ -25,16 +25,25 @@
       "scm_version_prefix": "my-frontend-",
       "jenkins_job": "/jenkins/blue/organisations/jenkins/00-my-frontend-deploy/activity",
       "version": {
-        "version_info": "my-frontend.{}.{}.mypage.nl/my-frontend/versie-info.txt"
+        "version_info": "http://127.0.0.1:5000/No"
       }
     },
     {
-      "name": "interface_stub",
+      "name": "Massaal",
+      "repo_key": "my_massaal",
+      "scm_version_prefix": "my-massaal-",
+      "jenkins_job": "/jenkins/blue/organisations/jenkins/00-my-massaal-deploy/activity",
+      "version": {
+        "version_info": "http://127.0.0.1:5000/"
+      }
+    },
+    {
+      "name": "interface-stub",
       "repo_key": "interface_stub",
       "scm_version_prefix": "interface-stub-",
       "jenkins_job": "/jenkins/blue/organisations/jenkins/10-interface-stub-deploy/activity",
       "version": {
-        "version_info": "interface-stub.{}.{}.mypage.nl/interface-stub/versie-info.txt"
+        "version_info": "http://127.0.0.1:5000/"
       },
       "unavailable": ["tst_10", "tst_11", "acc_10"]
     }
