@@ -15,12 +15,13 @@ urllib3.disable_warnings()
 
 
 class CollectData:
-    def __init__(self, jenkins_host, bitbucket_host, project_key, username, password):
-        self.jenkins_host = jenkins_host
-        self.bitbucket_host = bitbucket_host
-        self.jira_project_key = project_key
-        self.username = username
-        self.password = password
+    def __init__(self, config):
+        self.config = config
+        self.jenkins_host = config.content['jenkins']['host']
+        self.bitbucket_host = config.content['bitbucket']['host']
+        self.jira_project_key = config.content['jira']['project-key']
+        self.username = config.username
+        self.password = config.password
 
     def get_content(self, url):
         if not self.username or not self.password:
@@ -82,24 +83,24 @@ class CollectData:
             date = 'date not found'
         return date
 
-    def get_releaseinfo(self, environment, street, component_config):
+    def get_release_info(self, environment, street, component_config):
         version_info = component_config["version"]
         if "version-info" in version_info:
-            version, link_versioninfo = self.get_version_from_version_text(
+            version, link_version_info = self.get_version_from_version_text(
                 version_info["version-info"].format(street, environment))
         else:
             raise NotImplementedError("only version text currently implemented")
 
         issue = self.extract_issue_key(version)
-        deploytime = self.get_bitbucket_tag_info(component_config["repo_key"], component_config["scm_version_prefix"],
-                                                 version)
+        deploy_time = self.get_bitbucket_tag_info(component_config["repo_key"], component_config["scm_version_prefix"],
+                                                  version)
         jenkins_link = self.jenkins_host + component_config["jenkins_job"]
 
-        return link_versioninfo, issue, deploytime, jenkins_link
+        return link_version_info, issue, deploy_time, jenkins_link
 
-    def get_version_info_per_street(self, config):
+    def get_version_info_per_street(self):
         data = {}
-        content = config['environments']
+        content = self.config.content['environments']
         for environment in content:
             for street in content[environment]:
                 server_title = str(environment).capitalize() + ' ' + str(street)
@@ -107,10 +108,10 @@ class CollectData:
                 data[server_title] = {}
 
                 # iterate over each component
-                for component in config['components']:
+                for component in self.config.content['components']:
                     component_name = component['name']
                     if "unavailable" not in component or environment_key not in component["unavailable"]:
-                        data[server_title][component_name] = list(self.get_releaseinfo(environment, street, component))
+                        data[server_title][component_name] = list(self.get_release_info(environment, street, component))
         return data
 
     def get_version_from_version_text(self, url):

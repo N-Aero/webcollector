@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 import urllib3
 from requests.auth import HTTPBasicAuth
@@ -11,11 +13,12 @@ urllib3.disable_warnings()
 
 
 class Publisher:
-    def __init__(self, username, password, space, host):
-        self.username = username
-        self.password = password
-        self.space = space
-        self.confluence_host = host
+    def __init__(self, config):
+        self.config = config
+        self.username = config.username
+        self.password = config.password
+        self.space = config.content['confluence']['space']
+        self.confluence_host = config.content['confluence']['host']
 
     def get_content(self, url):
         if not self.username or not self.password:
@@ -50,10 +53,11 @@ class Publisher:
 
         return response
 
-    def publish(self, parent_page, title, content):
-        parent_title = parent_page.replace(' ', '%20')
-        url = "{confluence_host}/confluence/rest/api/content?spaceKey={space}&title={title}".format(
-            confluence_host=self.confluence_host, space=self.space, content=content)
+    def publish(self, content):
+        title = self.config.content['confluence']['page_name']
+
+        parent_title = self.config.content['jira']['parent_page'].replace(' ', '%20')
+        url = f"{self.confluence_host}/confluence/rest/api/content?spaceKey={self.space}&title={title}"
 
         response = self.get_content(url)
         result = response.json()['results'][0]
@@ -109,3 +113,52 @@ class Publisher:
             r = self.post_content(new_page_url, page)
 
         print(r.status_code)
+
+    def generate_html(self, results):
+        html_content = ''
+        list_of_tables = []
+        html_content += '<p><b>Overzicht bijgewerkt op {datetime}</b></p>'.format(
+            datetime=datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        html_content += '<ac:layout><ac:layout-section ac:type="two_equal"><ac:layout-cell>'
+        column_content = ''
+        left_column = ''
+        right_column = ''
+        for environment in results:
+            bgcolor = ''
+            if any('No Version' in version for version in [results[environment]['Massaal'][0],
+                                                           results[environment]['Comhub'][0],
+                                                           results[environment]['Kantoor'][0]
+                                                           ]):
+                bgcolor = 'background-color:red;'
+
+            number_of_columns = 3
+            table_content = '<table style="width: 90%; {}"><colgroup>'.format(bgcolor)
+            table_content += '<col style="width: {};"/>'.format(20)
+            table_content += '<col style="width: {};"/>'.format(30)
+            table_content += '<col style="width: {};"/>'.format(50)
+            table_content += '</colgroup>'
+
+            # header
+            table_content += '<tr><td bgcolor="#ADD8E6" colspan="{}"><h2 style="text-align: center;">{}</h2></td></tr>'.format(
+                number_of_columns, environment)
+
+            # Display components per environment
+            envdata = results[environment]
+            for component in self.config.content['components']:
+                data = envdata[component]
+                table_content += f'''<tr><td bgcolor="#D3D3D3"><a href="{data[3]}" target="_blank"><img src="{self.config.content['jenkins']['host']}/jenkins/static/665c6ecd/images/16x16/clock.png"/></a>&nbsp{component}</td><td>{data[0]}<br/><font style="rgb(133,134,154)"><sub><i>{data[2]}</i></sub></font></td><td>{data[1]}</td></tr>'''
+            table_content += "</table>"
+            list_of_tables.append(table_content)
+
+        for t in range(len(list_of_tables)):
+            if t % 2 == 0:
+                left_column += list_of_tables[t]
+            else:
+                right_column += list_of_tables[t]
+
+        column_content += left_column \
+                          + "</ac:layout-cell><ac:layout-cell>" \
+                          + right_column \
+                          + "</ac:layout-cell></ac:layout-section></ac:layout>"
+        html_content += column_content
+        return html_content
