@@ -57,7 +57,7 @@ class Publisher:
         title = self.config.content['confluence']['page_name']
 
         parent_title = self.config.content['jira']['parent_page'].replace(' ', '%20')
-        url = f"{self.confluence_host}/confluence/rest/api/content?spaceKey={self.space}&title={title}"
+        url = f"{self.confluence_host}/confluence/rest/api/content?spaceKey={self.space}&title={parent_title}"
 
         response = self.get_content(url)
         result = response.json()['results'][0]
